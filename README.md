@@ -54,4 +54,39 @@ function getNasaDataService () {
 
 ## นี่หมดยุค 2017 ละ ใครเขาใช้ Promise กัน ถถถ+
 ที่มาของ การใช้ async/await syntax คือ promise มันอ่านยาก หลายขั้นตอน จึงมีคนคิด มีแนวทางไหมที่อยากได้ผลลลัพธ์แบบ promise แต่เขียนได้กระชับ และสั้นกว่า
-...
+
+```javascript
+let request = require('request');
+const _nasaJSON = 'https://data.nasa.gov/resource/q83n-bbjy.json';
+
+function getNasaDataService () {
+    return new Promise((resolve, reject) => {
+        request(_nasaJSON, (err, res, body) => {
+            if (err) {
+                reject(err);
+                return;
+            } else {
+                resolve(body);
+            }
+        });
+    });
+}
+
+async function caller () {
+    try {
+        let result = await getNasaDataService();
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+caller();
+```
+
+await คือ object ที่จะใช้กับ function ที่ return promise object ออกมาเท่านั้น และเมื่อใดก็ตามเราใช้ await หน้า function ใดๆ มันจะรอให้บรรทัดนั้น และ statement นั้นๆให้เสร็จก่อน ถึงจะทำคพสั่งในบรรทัดถัดไป
+
+และกฏของ await จะใช้ได้ต้องอยู่ภายใน promise function หรือ ภายใต้ฟังก์ชั่น ที่ประกาศตัวเป็น async เท่านั้น
+
+## วิธีการเขียนที่กระชับขึ้น
+
