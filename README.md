@@ -84,9 +84,74 @@ async function caller () {
 caller();
 ```
 
-await คือ object ที่จะใช้กับ function ที่ return promise object ออกมาเท่านั้น และเมื่อใดก็ตามเราใช้ await หน้า function ใดๆ มันจะรอให้บรรทัดนั้น และ statement นั้นๆให้เสร็จก่อน ถึงจะทำคพสั่งในบรรทัดถัดไป
+await คือ object ที่จะใช้กับ function ที่ return promise object หรือ asynchronous function ออกมาเท่านั้น 
+และเมื่อใดก็ตามเราใช้ await หน้า function ใดๆ มันจะรอให้บรรทัดนั้นเสร็จก่อน ถึงจะทำคำสั่งในบรรทัดถัดไป
 
 และกฏของ await จะใช้ได้ต้องอยู่ภายใน promise function หรือ ภายใต้ฟังก์ชั่น ที่ประกาศตัวเป็น async เท่านั้น
 
-## วิธีการเขียนที่กระชับขึ้น
+## วิธีการเขียนที่กระชับขึ้น ด้วยการเริ่มต้นใหม่กับ async/await
+จากตัวอย่างข้างบนเป็นตัวอย่างของการใช้ Promise ร่วมกับ Async/Await (ซึ่งผมมองว่ามันไม่ clean) จะเห็นได้ว่ามันอาจสร้างความสับสนพอสมควร ดังนั้น ในตัวอย่างนี้ผมจะอธิบายตั้งแต่พื้นฐานจนไปถึงวิธีการสร้าง ที่ง่ายๆ ชัดเจน
+
+1. เริ่มต้นที่การประกาศ async หน้า function ที่ต้องการประกาศเป็น asynchronous หรือ return promise
+
+[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)
+
+การวาง async หน้าฟังก์ชั่นใดๆจะ return Promise<any> โดยปริยาย
+
+```javascript
+// define async function return as a promise object
+async function calculator (a, b) {
+    let result;
+
+    try {
+        result = await a + b;
+    } catch (error) {
+        result = await 'error';
+    }
+
+    return result;
+}
+
+// caller 01
+calculator(1, 2)
+.then((resolve) => {
+    console.log(resolve);
+})
+.catch((reason) => {
+    console.log(reason);
+});
+
+// caller 02
+const resultOfCalculator = async () => {
+    console.log(await calculator(1, 2));
+};
+
+resultOfCalculator();
+```
+
+2. Resolve, Reject and Pending / Fulfill จะรู้ได้อย่างไร
+ด้วยความที่เราไม่เขียนด้วย keyword Promise ดังนั้นสิ่งที่เราต้องทำนั่นคือ 
+การ ทำ Error handling `try..catch` สิ่งที่ return ใน try คือ สถานะ Resolve() และ สิ่งที่ return ใน catch คือ Reject()
+
+3. Await เมื่อต้อการผลลัพธ์ของ Promise หรือ การทำ Resolve value จาก Promise และมันจะหยุดรอ ก่อนไปบรรทัดถัดไป
+
+[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
+
+เมื่อใดก็ตามที่เราต้องการ await หรือ การหยุดรอ เพื่อไปต่อ เราต้อง ทำตามกฏ ดังนี้
+
+- เราจะใช้ await ได้ก็ต่อเมื่อ เรียกใช้ ใน async เท่านั้น
+- await จะหยุดรอ ดังนั้น การแก้ callback hell จึงนิยม มากขึ้นเรื่อยๆ แทนที่ Promise keyword
+- await จะให้ผลลัพธ์ Resolve value ที่ได้จาก promise object
+
+## สรุป
+- Async/await คือ แนวทางการเขียน Asynchronous code รูปแบบใหม่ ใน ES7
+- ทางเลือกเก่าของการเขียน Asynchronous code คือ `callback` หรือ `return new Promise()`
+- Async ยังคง return promise object
+- `try..catch` มีบทบาทในการกำหนด `promise status resolve or reject`
+- เวลาสัมภาษณ์ก็ตอบเขาแบบเท่ๆว่า non-blocking I/O 
+- Await คือ การหยุดรอ เพื่อ Resolve promise ให้เสร็จ ก่อนไปบรรทัดถัดไป
+- Await เป็น blocking I/O แต่ก็ได้ผลลัพธ์ Synchronous code
+
+## ตัวอย่างที่น่าสนใจ
+[https://hackernoon.com/6-reasons-why-javascripts-async-await-blows-promises-away-tutorial-c7ec10518dd9](https://hackernoon.com/6-reasons-why-javascripts-async-await-blows-promises-away-tutorial-c7ec10518dd9)
 
